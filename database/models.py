@@ -17,7 +17,11 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_id = mapped_column(BigInteger)
     username: Mapped[Optional[str]] = mapped_column(String(30))
-    notes_tags: Mapped[List['Tag']] = relationship('Tag', back_populates='user')
+    notes_tags: Mapped[List['Tag']] = relationship(
+        argument='Tag',
+        back_populates='user',
+        lazy="selectin"
+    )
 
 
 class Tag(Base):
@@ -26,8 +30,16 @@ class Tag(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(32))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped['User'] = relationship('User', back_populates='notes_tags')
-    notes: Mapped[List['Note']] = relationship('Note', back_populates='tag')
+    user: Mapped['User'] = relationship(
+        argument='User',
+        back_populates='notes_tags',
+        lazy="selectin"
+    )
+    notes: Mapped[List['Note']] = relationship(
+        argument='Note',
+        back_populates='tag',
+        lazy="selectin"
+    )
 
 
 class Note(Base):
@@ -35,6 +47,10 @@ class Note(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     tag_id: Mapped[int] = mapped_column(ForeignKey('tags.id'))
-    tag: Mapped['Tag'] = relationship('Tag', back_populates='notes')
+    tag: Mapped['Tag'] = relationship(
+        argument='Tag',
+        back_populates='notes',
+        lazy="selectin"
+    )
     content: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
