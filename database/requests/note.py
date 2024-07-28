@@ -36,7 +36,7 @@ async def get_tag(tag_id: int) -> Optional[Tag]:
 async def get_notes_by_tag(tag_id: int) -> List[Note]:
     async with async_session() as session:
         return await session.scalars(
-            select(Note).where(Note.tag_id == tag_id)
+            select(Note).where(Note.tag_id == tag_id).order_by('created_at')
         )
 
 
