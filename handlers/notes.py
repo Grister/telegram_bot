@@ -22,20 +22,20 @@ async def add_note(message: Message):
     parts = message.text[1:].split(maxsplit=1)
 
     if len(parts) < 2:
-        await message.reply("Failed to recognize the note. Please use the format: #tag note.")
+        await message.reply("❗️Failed to recognize the note. Please use the format: #tag note.")
         return
 
     tag, content = parts
     await rq.note.set_note(user_id, tag, content)
-    await message.answer("Note was saved successfully")
+    await message.reply("Note was saved successfully ✅")
 
 
 # Get list of your tags
 @router.message(Command('tags'))
 async def cmd_get_tags(message: Message):
     await message.answer(
-        text="Here is yours tags. Pick the tag to see notes by tag. "
-             "You can create new note using the format: #tag note.",
+        text="Here are your tags. Select a tag to view the notes associated with it. "
+             "To create a new note, use the format: #tag note.",
         reply_markup=await notes_kb.tags_list(message.from_user.id)
     )
 
@@ -48,10 +48,9 @@ async def notes_by_tag(callback: CallbackQuery):
 
     notes_message = f"Notes with tag #{tag.name}:\n\n"
     for note in notes:
-        notes_message += f"Date: {note.created_at.strftime('%Y-%m-%d %H:%M')}\n"
-        notes_message += f"- {note.content}\n\n"
-
-    await callback.answer(f"You chose tag '{tag.name}'")
+        notes_message += f"🕝 `{note.created_at.strftime('%Y-%m-%d %H:%M')}`\n"
+        notes_message += f"\t - {note.content}\n\n"
+    await callback.answer(f"You selected the tag '{tag.name}'")
     await callback.message.answer(
         notes_message,
         reply_markup=await notes_kb.note_menu(tag.id)
@@ -64,7 +63,7 @@ async def notes_list(callback: CallbackQuery):
     tag_id = int(callback.data.split('_')[2])
     await callback.answer("")
     await callback.message.edit_text(
-        text="Pick the note",
+        text="Select a note to view or edit it:",
         reply_markup=await notes_kb.notes_list(tag_id)
     )
 
@@ -76,7 +75,7 @@ async def note_context(callback: CallbackQuery):
 
     await callback.answer("")
     await callback.message.answer(
-        text=f'Date: {note.created_at} \n {note.content}',
+        text=f'🕝 {note.created_at.strftime("%Y-%m-%d %H:%M")} \n 🔸 {note.content}',
         reply_markup=await notes_kb.note_context(note.id)
     )
 
@@ -95,7 +94,7 @@ async def note_edit(callback: CallbackQuery, state: FSMContext):
 
     await state.set_state(EditNote.content)
     await state.update_data(note_id=note.id)
-    await callback.message.answer('Enter new text of note below')
+    await callback.message.answer('Please enter the new text for the note below:')
 
 
 @router.message(EditNote.content)
@@ -105,4 +104,4 @@ async def save(message: Message, state: FSMContext):
     await rq.note.update_note(note_id=data['note_id'], new_content=data['content'])
 
     await state.clear()
-    await message.answer("Update was saved")
+    await message.answer("Update was saved ✅")

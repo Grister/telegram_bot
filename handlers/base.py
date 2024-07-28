@@ -24,6 +24,12 @@ async def cmd_start(message: Message):
 
 @router.message(Command('help'))
 async def cmd_help(message: Message):
+    # text = [
+    #     'Список команд: ',
+    #     '/start - Начать диалог',
+    #     '/help - Получить справку'
+    # ]
+    # await message.answer('\n'.join(text))
     await message.answer('Helper doc')
 
 
@@ -43,7 +49,7 @@ async def cmd_password(message: Message):
         password += random.choice(chars)
 
     await message.answer(
-        text=f'Here\'s your {length}\-digit password \n'
-             f'Password: `{password}`',
+        text=f'Here is your {length}-character password. Click on text to copy it:\n'
+             f'`{password}`',
         parse_mode=ParseMode.MARKDOWN_V2
     )
