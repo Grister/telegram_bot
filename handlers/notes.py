@@ -7,22 +7,6 @@ import database.requests as rq
 router = Router()
 
 
-@router.message(CommandStart())
-async def cmd_start(message: Message):
-    user_id = message.from_user.id
-    username = message.from_user.username
-
-    await rq.user.set_user(user_id, username)
-    await message.answer(f'Hello, {message.from_user.first_name}! '
-                         f'How can I help you?',
-                         reply_markup=notes_kb.main)
-
-
-@router.message(Command('help'))
-async def cmd_help(message: Message):
-    await message.answer('Helper doc')
-
-
 @router.message(F.text.startswith('#'))
 async def add_note(message: Message):
     user_id = message.from_user.id
@@ -47,20 +31,27 @@ async def cmd_get_tags(message: Message):
 
 
 @router.callback_query(F.data.startswith('tag_'))
-async def category(callback: CallbackQuery):
+async def notes_by_tag(callback: CallbackQuery):
     tag = await rq.note.get_tag(int(callback.data.split('_')[1]))
     notes = await rq.note.get_notes_by_tag(tag.id)
 
-    notes_message = f"Заметки с тегом #{tag.name}:\n\n"
+    notes_message = f"Notes with tag #{tag.name}:\n\n"
     for note in notes:
-        notes_message += f"Date: {note.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        notes_message += f"Date: {note.created_at.strftime('%Y-%m-%d %H:%M')}\n"
         notes_message += f"- {note.content}\n\n"
 
     await callback.answer(f"You chose tag '{tag.name}'")
-    await callback.message.answer(notes_message, reply_markup=notes_kb.note_menu)
+    await callback.message.answer(notes_message, reply_markup=await notes_kb.get_note_menu(tag.id))
 
 
-@router.callback_query(F.data('note_editor'))  # TODO
-async def note_editor(callback: CallbackQuery):
+@router.callback_query(F.data.startswith('note_editor_'))
+async def notes_list(callback: CallbackQuery):
+    tag_id = int(callback.data.split('_')[2])
     await callback.answer("")
-    await callback.message.answer(text="Pick the note", reply_markup=await notes_kb.notes_editor())
+    await callback.message.answer(text="Pick the note", reply_markup=await notes_kb.notes_list(tag_id))
+
+
+@router.callback_query(F.data.startswith('note_'))
+async def note_editor(callback: CallbackQuery):
+    note = await rq.note.get_note(int(callback.data.split('_')[1]))
+    await callback.answer('')

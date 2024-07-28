@@ -1,4 +1,6 @@
+from typing import Optional
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import User
 
@@ -17,5 +19,5 @@ async def get_or_create(session, model, **kwargs):
     return instance
 
 
-async def get_user_by_id(session, user_tg_id):
+async def get_user_by_id(session: AsyncSession, user_tg_id: int) -> Optional[User]:
     return await session.scalar(select(User).where(User.tg_id == user_tg_id))
