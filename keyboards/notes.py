@@ -13,13 +13,23 @@ main = InlineKeyboardMarkup(inline_keyboard=[
 async def note_menu(tag_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text='Edit notes', callback_data=f'note_editor_{tag_id}')],
+            [InlineKeyboardButton(text='Edit notes', callback_data=f'notes_list_{tag_id}')],
             [InlineKeyboardButton(text='Back to main', callback_data='to_main')]
         ]
     )
 
 
-async def tags_kb(user_id: int) -> InlineKeyboardMarkup:
+async def note_editor(note_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='Edit note', callback_data=f'note_editor_{note_id}')],
+            [InlineKeyboardButton(text='Delete note', callback_data=f'del_note_{note_id}')],
+            [InlineKeyboardButton(text='Back', callback_data='to_main')]
+        ]
+    )
+
+
+async def tags_list(user_id: int) -> InlineKeyboardMarkup:
     all_tags = await get_tags(user_id)
     keyboard = InlineKeyboardBuilder()
     for tag in all_tags:
