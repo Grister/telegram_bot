@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 
 from database.db import init_db
-from handlers import notes, base
+from handlers import notes, base, currency
 
 load_dotenv()
 
@@ -18,6 +18,7 @@ async def main():
 
     dp.include_router(base.router)
     dp.include_router(notes.router)
+    dp.include_router(currency.router)
 
     await dp.start_polling(bot)
 

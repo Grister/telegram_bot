@@ -24,13 +24,15 @@ async def cmd_start(message: Message):
 
 @router.message(Command('help'))
 async def cmd_help(message: Message):
-    # text = [
-    #     'Список команд: ',
-    #     '/start - Начать диалог',
-    #     '/help - Получить справку'
-    # ]
-    # await message.answer('\n'.join(text))
-    await message.answer('Helper doc')
+    text = [
+        'Command list: ',
+        '/start - Начать диалог',
+        '/password - Generate new password. You can add argument `length` after command.'
+        'Example: /password 16',
+        '/currency - Get currency rates ',
+        '/tags - Get notes by tags',
+    ]
+    await message.answer('\n'.join(text))
 
 
 @router.message(Command('password'))
