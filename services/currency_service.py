@@ -1,10 +1,14 @@
+import os
+
 import aiohttp
-
+from dotenv import load_dotenv
+from datetime import datetime, timedelta
 from typing import List, Dict
-from bs4 import BeautifulSoup
+
+load_dotenv()
 
 
-async def get_rates_monobank() -> List:
+async def get_rates_monobank():
     url = 'https://api.monobank.ua/bank/currency'
     iso = {
         840: 'USD',
@@ -13,35 +17,38 @@ async def get_rates_monobank() -> List:
     }
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
-            data = await response.json()
-            currency_rates = []
-            for item in data:
-                if item["currencyCodeA"] in iso.keys() and item["currencyCodeB"] == 980:
-                    currency_rates.append(
-                        {
-                            'rate': f'{iso[item["currencyCodeA"]]}/{iso[item["currencyCodeB"]]}',
-                            'buy': round(item['rateBuy'], 2),
-                            'sell': round(item['rateSell'], 2),
-                        }
-                    )
-            return currency_rates
+            if response.status == 200:
+                data = await response.json()
+                currency_rates = []
+                for item in data:
+                    if item["currencyCodeA"] in iso.keys() and item["currencyCodeB"] == 980:
+                        currency_rates.append(
+                            {
+                                'rate': f'{iso[item["currencyCodeA"]]}/{iso[item["currencyCodeB"]]}',
+                                'buy': round(item['rateSell'], 2),
+                                'sell': round(item['rateBuy'], 2),
+                            }
+                        )
+                return currency_rates
+
+            else:
+                print(f"Error: Unable to fetch data (status code: {response.status})")
+                return None
 
 
-async def bestchange_session(url, index):
+async def bestchange_session(rate: str, api_key: str, convert_rate=False):
+    url = f'https://www.bestchange.app/v2/{api_key}/rates/{rate}'
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
-                html = await response.text()
-                soup = BeautifulSoup(html, 'html.parser')
-                table = soup.find('table', {'id': 'content_table'})
-                rows = table.find_all('td', {'class': 'bi'})
+                data = await response.json()
 
-                rates = []
-                for i in range(index, len(rows), 2):
-                    rate = rows[i].text.split()[0]
-                    rates.append(float(rate))
+                rates = [float(r['rate']) for r in data['rates'][rate]]
 
-                return round(sum(rates[:5]) / 5, 2)
+                if convert_rate:
+                    return round(1 / min(rates), 4)
+
+                return round(min(rates), 4)
 
             else:
                 print(f"Error: Unable to fetch data (status code: {response.status})")
@@ -49,27 +56,30 @@ async def bestchange_session(url, index):
 
 
 async def get_rates_bestchange():
+    api_key = os.getenv('BESTCHANCE_API_KEY')
     rates = [
         {
             'rate': 'USDT/UAH',
             'buy': await bestchange_session(
-                url='https://www.bestchange.ru/visa-mastercard-uah-to-tether-trc20.html',
-                index=0
+                rate='60-10',
+                api_key=api_key,
             ),
             'sell': await bestchange_session(
-                url='https://www.bestchange.ru/tether-trc20-to-visa-mastercard-uah.html',
-                index=1
+                rate='10-60',
+                api_key=api_key,
+                convert_rate=True
             ),
         },
         {
             'rate': 'USDT/RUB',
             'buy': await bestchange_session(
-                url='https://www.bestchange.ru/sberbank-to-tether-trc20.html',
-                index=0
+                rate='59-10',
+                api_key=api_key,
             ),
             'sell': await bestchange_session(
-                url='https://www.bestchange.ru/tether-trc20-to-sberbank.html',
-                index=1
+                rate='10-59',
+                api_key=api_key,
+                convert_rate=True
             ),
         }]
 
@@ -102,11 +112,24 @@ async def get_rates_binance():
     return rates
 
 
+currency_cache = {}
+cache_duration = timedelta(minutes=10)
+
+
 async def collect_rates() -> Dict:
-    result = {
+    now = datetime.utcnow()
+
+    if 'data' in currency_cache and 'timestamp' in currency_cache:
+        if now - currency_cache['timestamp'] < cache_duration:
+            return currency_cache['data']
+
+    data = {
         'monobank': await get_rates_monobank(),
         'bestchange': await get_rates_bestchange(),
         'binance': await get_rates_binance(),
     }
 
-    return result
+    currency_cache['data'] = data
+    currency_cache['timestamp'] = now
+
+    return data

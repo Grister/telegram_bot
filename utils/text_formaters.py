@@ -1,12 +1,11 @@
-from prettytable import PrettyTable
-
-
-def format_currency_data(data):
-    table = PrettyTable()
-    table.field_names = ["Source", "Rate", "Buy", "Sell"]
+def format_currency_data(data: dict) -> str:
+    row = ''
 
     for source, rates in data.items():
-        for rate in rates:
-            table.add_row([source, rate['rate'], rate['buy'], rate['sell']])
+        row += f"<b>{source.upper()}</b> \n"
 
-    return f"<pre>{table.get_string()}</pre>"
+        for rate in rates:
+            row += f"{rate['rate']}:  {rate['buy']}/{rate['sell']} \n"
+        row += '\n'
+
+    return row
