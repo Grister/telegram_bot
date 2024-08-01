@@ -3,12 +3,6 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from database.requests.note import get_tags, get_notes_by_tag
 
-main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Check scu', callback_data='catalog')],
-    [InlineKeyboardButton(text='Your notes', callback_data='basket'),
-     InlineKeyboardButton(text='Contacts', callback_data='contacts')]
-])
-
 
 async def note_menu(tag_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(

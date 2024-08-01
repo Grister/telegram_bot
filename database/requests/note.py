@@ -14,8 +14,6 @@ async def set_note(user_id: int, tag_name: str, note: str) -> None:
         instance = Note(tag_id=tag.id, content=note)
         session.add(instance)
 
-        await session.commit()
-
 
 async def get_tags(user_id: int) -> List[Tag]:
     async with async_session() as session:

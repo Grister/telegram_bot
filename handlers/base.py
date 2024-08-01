@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from aiogram.enums import ParseMode
 
-import keyboards.notes as notes_kb
+import keyboards.main as kb
 import database.requests.user as user_rq
 
 router = Router()
@@ -19,7 +19,7 @@ async def cmd_start(message: Message):
     await user_rq.set_user(user_id, username)
     await message.answer(f'Hello, {message.from_user.first_name}! '
                          f'How can I help you?',
-                         reply_markup=notes_kb.main)
+                         reply_markup=kb.main)
 
 
 @router.message(Command('help'))
