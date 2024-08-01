@@ -3,10 +3,12 @@ import random
 from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
+from aiogram.utils.formatting import Code
 from aiogram.enums import ParseMode
 
 import keyboards.main as kb
 import database.requests.user as user_rq
+from utils.password_generate import generate_password
 
 router = Router()
 
@@ -37,9 +39,7 @@ async def cmd_help(message: Message):
 
 @router.message(Command('password'))
 async def cmd_password(message: Message):
-    chars = '+-/!&$#?=@<>abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
     length = 8
-    password = ''
     try:
         arg = message.text.split()[1]
         if arg.isdigit():
@@ -47,11 +47,10 @@ async def cmd_password(message: Message):
     except Exception as e:
         pass
 
-    for i in range(length):
-        password += random.choice(chars)
+    password = generate_password(length)
 
     await message.answer(
         text=f'Here is your {length}-character password. Click on text to copy it:\n'
-             f'`{password}`',
-        parse_mode=ParseMode.MARKDOWN_V2
+             f'{Code(password).as_markdown()}',
+        parse_mode=ParseMode.MARKDOWN
     )

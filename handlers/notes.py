@@ -3,6 +3,8 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.formatting import Italic
+from aiogram.enums import ParseMode
 
 import keyboards.notes as notes_kb
 import database.requests as rq
@@ -48,12 +50,13 @@ async def notes_by_tag(callback: CallbackQuery):
 
     notes_message = f"Notes with tag #{tag.name}:\n\n"
     for note in notes:
-        notes_message += f"🕝 `{note.created_at.strftime('%Y-%m-%d %H:%M')}`\n"
+        notes_message += f"🕝 {Italic(note.created_at.strftime('%d/%m/%Y %H:%M')).as_markdown()}\n"
         notes_message += f"\t - {note.content}\n\n"
     await callback.answer(f"You selected the tag '{tag.name}'")
     await callback.message.answer(
         notes_message,
-        reply_markup=await notes_kb.note_menu(tag.id)
+        reply_markup=await notes_kb.note_menu(tag.id),
+        parse_mode=ParseMode.MARKDOWN
     )
 
 
