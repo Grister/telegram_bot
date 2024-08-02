@@ -30,7 +30,7 @@ class WeeklyTask(CreateTask):
 
 @router.message(Command("tasks"))
 async def cmd_get_tasks(message: Message, user_id: int = None):
-    goals = await task_rq.get_goals_list(user_id if user_id else message.from_user.id)
+    goals = await task_rq.get_goal_list(user_id if user_id else message.from_user.id)
     if goals:
         await message.answer(f"Here is your year goals. Click on goal to see tasks by this goal",
                              reply_markup=await task_kb.goal_list(goals))

@@ -45,7 +45,7 @@ async def cmd_get_tags(message: Message, user_id: int = None):
 # List of notes by tag in one message
 @router.callback_query(F.data.startswith('tag_'))
 async def notes_by_tag(callback: CallbackQuery):
-    tag = await rq.note.get_tag(int(callback.data.split('_')[1]))
+    tag = await rq.note.get_tag_instance(int(callback.data.split('_')[1]))
     notes = await rq.note.get_notes_by_tag(tag.id)
     if notes:
         notes_message = f"Notes with tag #{tag.name}:\n\n"

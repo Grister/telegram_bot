@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from database.requests.note import get_tags, get_notes_by_tag
+from database.requests.note import get_tag_list, get_notes_by_tag
 
 
 async def note_menu(tag_id: int) -> InlineKeyboardMarkup:
@@ -33,7 +33,7 @@ async def empty_note_menu(tag_id: int) -> InlineKeyboardMarkup:
 
 
 async def tags_list(user_id: int) -> InlineKeyboardMarkup:
-    all_tags = await get_tags(user_id)
+    all_tags = await get_tag_list(user_id)
     keyboard = InlineKeyboardBuilder()
     for tag in all_tags:
         keyboard.add(InlineKeyboardButton(text=f'📌 {tag.name}', callback_data=f'tag_{tag.id}'))

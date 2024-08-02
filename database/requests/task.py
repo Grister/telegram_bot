@@ -22,7 +22,7 @@ async def set_weekly_task(monthly_task_id: int, task_name: str) -> Optional[Week
         return await db_tools.create_instance(session, WeeklyTask, monthly_task_id=monthly_task_id, title=task_name)
 
 
-async def get_goals_list(user_id: int) -> List[Goal]:
+async def get_goal_list(user_id: int) -> List[Goal]:
     async with async_session() as session:
         user = await db_tools.get_user_by_id(session, user_id)
         return await db_tools.get_list(session, Goal, user_id=user.id)
