@@ -34,11 +34,11 @@ async def add_note(message: Message):
 
 # Get list of your tags
 @router.message(Command('tags'))
-async def cmd_get_tags(message: Message):
+async def cmd_get_tags(message: Message, user_id: int = None):
     await message.answer(
         text="Here are your tags. Select a tag to view the notes associated with it. "
              "To create a new note, use the format: #tag note.",
-        reply_markup=await notes_kb.tags_list(message.from_user.id)
+        reply_markup=await notes_kb.tags_list(user_id if user_id else message.from_user.id)
     )
 
 
@@ -47,17 +47,22 @@ async def cmd_get_tags(message: Message):
 async def notes_by_tag(callback: CallbackQuery):
     tag = await rq.note.get_tag(int(callback.data.split('_')[1]))
     notes = await rq.note.get_notes_by_tag(tag.id)
-
-    notes_message = f"Notes with tag #{tag.name}:\n\n"
-    for note in notes:
-        notes_message += f"🕝 {Italic(note.created_at.strftime('%d/%m/%Y %H:%M')).as_markdown()}\n"
-        notes_message += f"\t - {note.content}\n\n"
-    await callback.answer(f"You selected the tag '{tag.name}'")
-    await callback.message.answer(
-        notes_message,
-        reply_markup=await notes_kb.note_menu(tag.id),
-        parse_mode=ParseMode.MARKDOWN
-    )
+    if notes:
+        notes_message = f"Notes with tag #{tag.name}:\n\n"
+        for note in notes:
+            notes_message += f"🕝 {Italic(note.created_at.strftime('%d/%m/%Y %H:%M')).as_markdown()}\n"
+            notes_message += f"\t - {note.content}\n\n"
+        await callback.answer(f"You selected the tag '{tag.name}'")
+        await callback.message.answer(
+            notes_message,
+            reply_markup=await notes_kb.note_menu(tag.id),
+            parse_mode=ParseMode.MARKDOWN
+        )
+    else:
+        await callback.message.answer(
+            text=f"You don't have any notes be tag: {tag.name}",
+            reply_markup=await notes_kb.empty_note_menu(tag.id)
+        )
 
 
 # List of notes as keyboard
@@ -76,10 +81,10 @@ async def notes_list(callback: CallbackQuery):
 async def note_context(callback: CallbackQuery):
     note = await rq.note.get_note(int(callback.data.split('_')[1]))
 
-    await callback.answer("")
+    await callback.answer()
     await callback.message.answer(
         text=f'🕝 {note.created_at.strftime("%Y-%m-%d %H:%M")} \n 🔸 {note.content}',
-        reply_markup=await notes_kb.note_context(note.id)
+        reply_markup=await notes_kb.note_context(note.id, note.tag_id)
     )
 
 
@@ -108,3 +113,10 @@ async def save(message: Message, state: FSMContext):
 
     await state.clear()
     await message.answer("Update was saved ✅")
+
+
+# Delete specific tag
+@router.callback_query(F.data.startswith('del_tag_'))
+async def tag_delete(callback: CallbackQuery):
+    await rq.note.delete_tag(int(callback.data.split('_')[2]))
+    await callback.answer("Tag was deleted", show_alert=True)

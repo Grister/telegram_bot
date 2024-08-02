@@ -1,11 +1,6 @@
 import random
 
 
-def escape_password(password: str) -> str:
-    special_chars = "\\`*_{}[]()#+-.!"
-    return ''.join(f'\\{char}' if char in special_chars else char for char in password)
-
-
 def generate_password(length):
     chars = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
     lowercase_chars = 'abcdefghijklnopqrstuvwxyz'
@@ -22,7 +17,6 @@ def generate_password(length):
     for i in range(length - 2):
         password.append(random.choice(chars))
 
-    # Shuffle the list to mix the required characters with the random ones
     random.shuffle(password)
 
     return ''.join(password)

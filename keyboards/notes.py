@@ -8,17 +8,26 @@ async def note_menu(tag_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text='🛠 Edit notes', callback_data=f'notes_list_{tag_id}')],
-            [InlineKeyboardButton(text='Back to main', callback_data='#TODO')]
+            [InlineKeyboardButton(text='⬅️ Back to main', callback_data='callback_start')]
         ]
     )
 
 
-async def note_context(note_id: int) -> InlineKeyboardMarkup:
+async def note_context(note_id: int, tag_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text='✏️ Edit note', callback_data=f'edit_note_{note_id}')],
             [InlineKeyboardButton(text='🚫 Delete note', callback_data=f'del_note_{note_id}')],
-            [InlineKeyboardButton(text='Back', callback_data='#TODO')]
+            [InlineKeyboardButton(text='⬅️ Back', callback_data=f'notes_list_{tag_id}')]
+        ]
+    )
+
+
+async def empty_note_menu(tag_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='🚫 Delete tag', callback_data=f'del_tag_{tag_id}')],
+            [InlineKeyboardButton(text='⬅️ Back to main', callback_data='callback_start')]
         ]
     )
 
@@ -29,7 +38,7 @@ async def tags_list(user_id: int) -> InlineKeyboardMarkup:
     for tag in all_tags:
         keyboard.add(InlineKeyboardButton(text=f'📌 {tag.name}', callback_data=f'tag_{tag.id}'))
 
-    keyboard.add(InlineKeyboardButton(text='To main', callback_data='#TODO'))
+    keyboard.add(InlineKeyboardButton(text='⬅️ Back to main', callback_data='callback_start'))
     return keyboard.adjust(2).as_markup()
 
 

@@ -35,9 +35,10 @@ async def get_tag(tag_id: int) -> Optional[Tag]:
 
 async def get_notes_by_tag(tag_id: int) -> List[Note]:
     async with async_session() as session:
-        return await session.scalars(
+        result = await session.scalars(
             select(Note).where(Note.tag_id == tag_id).order_by('created_at')
         )
+        return result.all()
 
 
 async def get_note(note_id: int) -> Optional[Note]:
@@ -51,6 +52,14 @@ async def delete_note(note_id: int) -> None:
     async with async_session() as session:
         await session.execute(
             delete(Note).where(Note.id == note_id)
+        )
+        await session.commit()
+
+
+async def delete_tag(tag_id: int) -> None:
+    async with async_session() as session:
+        await session.execute(
+            delete(Tag).where(Tag.id == tag_id)
         )
         await session.commit()
 

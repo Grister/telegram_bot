@@ -1,11 +1,10 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-main = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text='Check your tasks', callback_data='tasks'),
-         KeyboardButton(text='Your notes', callback_data='notes')],
-        [KeyboardButton(text='Currency', callback_data='Currency'),
-         KeyboardButton(text='Generate password', callback_data='password')],
-    ],
-    resize_keyboard=True
+main = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text='Check your tasks', callback_data='callback_tasks')],
+        [InlineKeyboardButton(text='Your notes', callback_data='callback_tags')],
+        [InlineKeyboardButton(text='Get currency rates', callback_data='callback_currency')],
+        [InlineKeyboardButton(text='Generate password', callback_data='callback_password')],
+    ]
 )
