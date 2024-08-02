@@ -69,7 +69,7 @@ async def notes_by_tag(callback: CallbackQuery):
 @router.callback_query(F.data.startswith('notes_list_'))
 async def notes_list(callback: CallbackQuery):
     tag_id = int(callback.data.split('_')[2])
-    await callback.answer("")
+    await callback.answer()
     await callback.message.edit_text(
         text="Select a note to view or edit it:",
         reply_markup=await notes_kb.notes_list(tag_id)

@@ -25,8 +25,8 @@ async def get_rates_monobank():
                         currency_rates.append(
                             {
                                 'rate': f'{iso[item["currencyCodeA"]]}/{iso[item["currencyCodeB"]]}',
-                                'buy': round(item['rateSell'], 2),
-                                'sell': round(item['rateBuy'], 2),
+                                'buy': f'{item["rateSell"]:.2f}',
+                                'sell': f'{item["rateBuy"]:.2f}',
                             }
                         )
                 return currency_rates
@@ -46,9 +46,9 @@ async def bestchange_session(rate: str, api_key: str, convert_rate=False):
                 rates = [float(r['rate']) for r in data['rates'][rate]]
 
                 if convert_rate:
-                    return round(1 / min(rates), 4)
+                    return f'{1 / min(rates):.2f}'
 
-                return round(min(rates), 4)
+                return f'{min(rates):.2f}'
 
             else:
                 print(f"Error: Unable to fetch data (status code: {response.status})")
@@ -90,7 +90,7 @@ async def binance_session(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             data = await response.json()
-            return round(float(data['price']), 4)
+            return f'{float(data["price"]):.2f}'
 
 
 async def get_rates_binance():

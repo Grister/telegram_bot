@@ -9,6 +9,7 @@ import database.requests.user as user_rq
 
 from handlers.currency import cmd_get_rates
 from handlers.notes import cmd_get_tags
+from handlers.tasks import cmd_get_tasks
 
 from utils.password_generate import generate_password
 
@@ -16,14 +17,18 @@ router = Router()
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, user_id: int = None, username: str = None):
+async def cmd_start(message: Message, user_id: int = None, username: str = None, from_callback: bool = False):
     user_id = user_id if user_id else message.from_user.id
     username = username if username else message.from_user.username
 
-    await user_rq.set_user(user_id, username)
-    await message.answer(f'Hello, {message.from_user.first_name}! '
-                         f'How can I help you?',
-                         reply_markup=kb.main)
+    if from_callback:
+        await message.edit_text(f'How can I help you next?',
+                                reply_markup=kb.main)
+    else:
+        await user_rq.set_user(user_id, username)
+        await message.answer(f'Hello, {message.from_user.first_name}! '
+                             f'How can I help you?',
+                             reply_markup=kb.main)
 
 
 @router.message(Command('help'))
@@ -35,6 +40,7 @@ async def cmd_help(message: Message):
         'Example: /password 16',
         '/currency - Get currency rates',
         '/tags - Get notes by tags',
+        '/tasks - Check your goals and daily tasks',
     ]
     await message.answer('\n'.join(text))
 
@@ -73,10 +79,16 @@ async def callback_start(callback: CallbackQuery):
     await cmd_start(
         callback.message,
         user_id=callback.from_user.id,
-        username=callback.from_user.username
+        username=callback.from_user.username,
+        from_callback=True
     )
 
 
 @router.callback_query(F.data == 'callback_tags')
 async def callback_tags(callback: CallbackQuery):
     await cmd_get_tags(callback.message, user_id=callback.from_user.id)
+
+
+@router.callback_query(F.data == 'callback_tasks')
+async def callback_tasks(callback: CallbackQuery):
+    await cmd_get_tasks(callback.message, user_id=callback.from_user.id)
