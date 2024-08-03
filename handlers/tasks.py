@@ -1,122 +1,100 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
-
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
+from database.models import StatusEnum
 import database.requests.task as task_rq
+from utils.db_utils import get_user_by_id
 import keyboards.tasks as task_kb
+
 
 router = Router()
 
 
-class CreateGoal(StatesGroup):
-    name = State()
-
-
 class CreateTask(StatesGroup):
-    parent_id: int
-    name = State()
-
-
-class MonthlyTask(CreateTask):
-    pass
-
-
-class WeeklyTask(CreateTask):
-    pass
+    title = State()
 
 
 @router.message(Command("tasks"))
 async def cmd_get_tasks(message: Message, user_id: int = None):
-    goals = await task_rq.get_goal_list(user_id if user_id else message.from_user.id)
-    if goals:
-        await message.answer(f"Here is your year goals. Click on goal to see tasks by this goal",
-                             reply_markup=await task_kb.goal_list(goals))
+    user_id = user_id if user_id else message.from_user.id
+    tasks = await task_rq.get_task_list(user_id)
+
+    if tasks:
+        await message.answer(f"Here is your tasks. Click on task to edit the task",
+                             reply_markup=await task_kb.task_list(user_id))
     else:
-        await message.answer("You don't have any goals. To create a goal you can use command '/create_year_task' "
+        await message.answer("You don't have any tasks. To create a task you can use command '/create_task' "
                              "or click on button below",
-                             reply_markup=task_kb.empty_goals_menu)
+                             reply_markup=task_kb.empty_tasks_menu)
 
 
-@router.message(Command("create_year_task"))
-async def cmd_create_goal(message: Message, state: FSMContext):
-    await message.answer("Please enter the name of your yearly goal:")
-    await state.set_state(CreateGoal.name)
+@router.message(Command('task_archive'))
+async def cmd_task_archive(message: Message):
+    tasks = await task_rq.get_task_list(message.from_user.id)
+
+    msg = f"Archive tasks:\n\n"
+    for task in tasks:
+        if task.status == StatusEnum.COMPLETED:
+            msg += f"✅ {task.title}\n"
+        elif task.status == StatusEnum.CANCELED:
+            msg += f"❌ {task.title}\n"
+
+    await message.answer(msg)
 
 
-@router.message(CreateGoal.name)
+@router.message(Command("create_task"))
+async def cmd_create_task(message: Message, state: FSMContext):
+    await message.answer("Please enter the name of your task:")
+    await state.set_state(CreateTask.title)
+
+
+@router.message(CreateTask.title)
 async def process_goal_name(message: Message, state: FSMContext):
-    goal_name = message.text
+    task_title = message.text
     user_id = message.from_user.id
-
-    goal = await task_rq.set_year_goal(user_id, goal_name)
-    await message.answer(f"Yearly goal '{goal.title}' has been created! Add your mouthly task to set your goal",
-                         reply_markup=await task_kb.goal_after_creating(goal.id))
-    await state.clear()
-
-
-@router.callback_query(F.data == 'create_year_task')
-async def callback_create_year_task(callback: CallbackQuery, state: FSMContext):
-    await cmd_create_goal(callback.message, state)
-    await callback.answer()
-
-
-@router.callback_query(F.data.startswith('create_monthly_task_'))
-async def create_monthly_task(callback: CallbackQuery, state: FSMContext):
-    goal_id = int(callback.data.split('_')[3])
-
-    await state.set_state(MonthlyTask.name)
-    await state.update_data(parent_id=goal_id)
-    await callback.message.answer("Please enter the title of your monthly task:")
-
-
-@router.message(MonthlyTask.name)
-async def process_monthly_task_name(message: Message, state: FSMContext):
-    await state.update_data(name=message.text)
-
-    data = await state.get_data()
-    task = await task_rq.set_monthly_task(goal_id=data['parent_id'], task_name=data['name'])
+    task = await task_rq.set_daily_task(user_id, task_title)
 
     await message.answer(
-        text=f"Monthly task '{task.title}' has been created! Add your weekly task to set your goal",
-        reply_markup=await task_kb.monthly_task_after_creating(task.id, data['parent_id'])
+        text=f"Task '{task.title}' has been created!",
+        reply_markup=task_kb.task_after_creating_menu
     )
     await state.clear()
 
 
-@router.callback_query(F.data.startswith('create_weekly_task_'))
-async def create_weekly_task(callback: CallbackQuery, state: FSMContext):
-    monthly_task_id = int(callback.data.split('_')[3])
-
-    await state.set_state(WeeklyTask.name)
-    await state.update_data(parent_id=monthly_task_id)
-    await callback.message.answer("Please enter the title of your weekly task:")
+@router.callback_query(F.data == 'create_task')
+async def callback_create_task(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await cmd_create_task(callback.message, state)
 
 
-@router.message(WeeklyTask.name)
-async def process_weekly_task_name(message: Message, state: FSMContext):
-    await state.update_data(name=message.text)
-
-    data = await state.get_data()
-    task = await task_rq.set_weekly_task(monthly_task_id=data['parent_id'], task_name=data['name'])
-
-    await message.answer(
-        text=f"Weekly task '{task.title}' has been created! Add your daily task to start your way nahui",
-        reply_markup=await task_kb.weekly_task_after_creating(task.id, data['parent_id'])
-    )
-    await state.clear()
-
-
-@router.callback_query(F.data.startswith('goal_'))
-async def monthly_tasks(callback: CallbackQuery):
-    goal_id = int(callback.data.split('_')[1])
-    goal = await task_rq.get_goal_instance(goal_id)
-    tasks = await task_rq.get_monthly_task_list(goal_id)
+# Get specific task
+@router.callback_query(F.data.startswith('task_'))
+async def note_context(callback: CallbackQuery):
+    task = await task_rq.get_task_instance(int(callback.data.split('_')[1]))
 
     await callback.answer()
-    await callback.message.answer(
-        text=f'Here is your monthly tasks from {goal.title}',
-        reply_markup=await task_kb.monthly_task_list(tasks)
+    await callback.message.edit_text(
+        text=f'✔️ {task.title}',
+        reply_markup=await task_kb.task_context(task.id)
     )
+
+
+# Complete specific task
+@router.callback_query(F.data.startswith('complete_task_'))
+async def task_complete(callback: CallbackQuery):
+    task_id = int(callback.data.split('_')[2])
+    await task_rq.set_task_status(task_id, StatusEnum.COMPLETED)
+    await callback.answer("Note was completed")
+    await cmd_get_tasks(callback.message, callback.from_user.id)
+
+
+# Cancel specific task
+@router.callback_query(F.data.startswith('cancel_task_'))
+async def task_complete(callback: CallbackQuery):
+    task_id = int(callback.data.split('_')[2])
+    await task_rq.set_task_status(task_id, StatusEnum.CANCELED)
+    await callback.answer("Note was canceled")
+    await cmd_get_tasks(callback.message, callback.from_user.id)

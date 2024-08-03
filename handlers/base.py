@@ -36,11 +36,13 @@ async def cmd_help(message: Message):
     text = [
         'Command list: ',
         '/start - Начать диалог',
-        '/password - Generate new password. You can add argument `length` after command.'
-        'Example: /password 16',
+        '/password - Generate new password. You can add argument `length` after command. '
+        'Example: `/password 16`',
         '/currency - Get currency rates',
         '/tags - Get notes by tags',
-        '/tasks - Check your goals and daily tasks',
+        '/tasks - Check your daily tasks',
+        '/create_task - Create new daily task',
+        '/task_archive - Get task archive',
     ]
     await message.answer('\n'.join(text))
 
@@ -66,16 +68,19 @@ async def cmd_password(message: Message):
 
 @router.callback_query(F.data == 'callback_currency')
 async def callback_currency(callback: CallbackQuery):
+    await callback.answer()
     await cmd_get_rates(callback.message)
 
 
 @router.callback_query(F.data == 'callback_password')
 async def callback_password(callback: CallbackQuery):
+    await callback.answer()
     await cmd_password(callback.message)
 
 
 @router.callback_query(F.data == 'callback_start')
 async def callback_start(callback: CallbackQuery):
+    await callback.answer()
     await cmd_start(
         callback.message,
         user_id=callback.from_user.id,
@@ -86,9 +91,11 @@ async def callback_start(callback: CallbackQuery):
 
 @router.callback_query(F.data == 'callback_tags')
 async def callback_tags(callback: CallbackQuery):
+    await callback.answer()
     await cmd_get_tags(callback.message, user_id=callback.from_user.id)
 
 
 @router.callback_query(F.data == 'callback_tasks')
 async def callback_tasks(callback: CallbackQuery):
+    await callback.answer()
     await cmd_get_tasks(callback.message, user_id=callback.from_user.id)

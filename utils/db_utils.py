@@ -22,7 +22,7 @@ async def get_instance(session, model, **kwargs):
     )
 
 
-async def get_list(session, model, order_by: str = None, **kwargs):
+async def get_list(session, model, order_by=None, **kwargs):
     result = await session.scalars(
         select(model).filter_by(**kwargs).order_by(order_by)
     )
