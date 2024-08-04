@@ -1,6 +1,8 @@
 import os
+
 from dotenv import load_dotenv
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from database.models import Base
 
@@ -15,7 +17,7 @@ PASSWORD = os.environ.get("POSTGRES_PASSWORD")
 DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
-async_session = async_sessionmaker(engine)
+async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
 async def init_db():

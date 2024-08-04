@@ -1,24 +1,54 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Some catalog', callback_data='catalog')],
-    [InlineKeyboardButton(text='Basket', callback_data='basket'),
-     InlineKeyboardButton(text='Contacts', callback_data='contacts')]
-])
-
-settings = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [InlineKeyboardButton(text='some text', url='https://www.youtube.com/')],
-        [InlineKeyboardButton(text='text', url='https://docs.aiogram.dev/uk-ua/latest/migration_2_to_3.html')]
-    ]
-)
-
-cars = ['Tesla', 'BMW', 'Opel', 'Tesla', 'BMW', 'Opel', 'Tesla', 'BMW', 'Opel', ]
+from database.requests.note import get_notes_by_tag, get_tag_list
 
 
-async def inline_cars():
+async def note_menu(tag_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='🛠 Edit notes', callback_data=f'notes_list_{tag_id}')],
+            [InlineKeyboardButton(text='⬅️ Back to main', callback_data='callback_start')]
+        ]
+    )
+
+
+async def note_context(note_id: int, tag_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='✏️ Edit note', callback_data=f'edit_note_{note_id}')],
+            [InlineKeyboardButton(text='🚫 Delete note', callback_data=f'del_note_{note_id}')],
+            [InlineKeyboardButton(text='⬅️ Back', callback_data=f'notes_list_{tag_id}')]
+        ]
+    )
+
+
+async def empty_note_menu(tag_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text='🚫 Delete tag', callback_data=f'del_tag_{tag_id}')],
+            [InlineKeyboardButton(text='⬅️ Back to main', callback_data='callback_start')]
+        ]
+    )
+
+
+async def tags_list(user_id: int) -> InlineKeyboardMarkup:
+    all_tags = await get_tag_list(user_id)
     keyboard = InlineKeyboardBuilder()
-    for car in cars:
-        keyboard.add(InlineKeyboardButton(text=car, url='https://www.youtube.com/'))
+    for tag in all_tags:
+        keyboard.add(InlineKeyboardButton(text=f'📌 {tag.name}', callback_data=f'tag_{tag.id}'))
+
+    keyboard.add(InlineKeyboardButton(text='⬅️ Back to main', callback_data='callback_start'))
     return keyboard.adjust(2).as_markup()
+
+
+async def notes_list(tag_id: int) -> InlineKeyboardMarkup:
+    all_notes = await get_notes_by_tag(tag_id)
+    keyboard = InlineKeyboardBuilder()
+    for note in all_notes:
+        keyboard.add(InlineKeyboardButton(
+            text=f"🖋 {note.content[:20]}",
+            callback_data=f'note_{note.id}'))
+
+    keyboard.add(InlineKeyboardButton(text='⬅️ Back', callback_data=f'tag_{tag_id}'))
+    return keyboard.adjust(1).as_markup()

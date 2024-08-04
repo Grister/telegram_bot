@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  db:
+    image: postgres:15.5
+    container_name: db
+    environment:
+      POSTGRES_DB: ${POSTGRES_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d bot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+  bot:
+    build: .
+    command: sh -c "python3 main.py"
+    env_file:
+      - ./.env
+    restart: always
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
