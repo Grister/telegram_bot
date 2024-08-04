@@ -1,9 +1,9 @@
 import os
+from datetime import datetime, timedelta
+from typing import Dict
 
 import aiohttp
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
-from typing import List, Dict
 
 load_dotenv()
 

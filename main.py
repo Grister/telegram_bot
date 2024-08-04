@@ -1,11 +1,12 @@
 import asyncio
 import logging
 import os
-from dotenv import load_dotenv
+
 from aiogram import Bot, Dispatcher
+from dotenv import load_dotenv
 
 from database.db import init_db
-from handlers import notes, base, currency, tasks
+from handlers import base, currency, notes, tasks
 
 load_dotenv()
 

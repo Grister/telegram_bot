@@ -1,13 +1,13 @@
 from aiogram import F, Router
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.context import FSMContext
-from aiogram.utils.formatting import Italic
 from aiogram.enums import ParseMode
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Message
+from aiogram.utils.formatting import Italic
 
-import keyboards.notes as notes_kb
 import database.requests as rq
+import keyboards.notes as notes_kb
 
 router = Router()
 

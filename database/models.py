@@ -1,12 +1,10 @@
-from datetime import datetime, timedelta
-from typing import Optional, List
-
-from sqlalchemy import String, ForeignKey, Text, DateTime, BigInteger, Enum
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.ext.asyncio import AsyncAttrs
-
 import enum
+from datetime import datetime
+from typing import List, Optional
+
+from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class StatusEnum(enum.Enum):

@@ -1,7 +1,7 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from database.requests.note import get_tag_list, get_notes_by_tag
+from database.requests.note import get_notes_by_tag, get_tag_list
 
 
 async def note_menu(tag_id: int) -> InlineKeyboardMarkup:

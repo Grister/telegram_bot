@@ -1,9 +1,10 @@
-from typing import Optional, List
-from sqlalchemy import select, delete, update, text
+from typing import List, Optional
 
+from sqlalchemy import text, update
+
+import utils.db_utils as db_tools
 from database.db import async_session
 from database.models import DailyTask, StatusEnum
-import utils.db_utils as db_tools
 
 
 async def set_daily_task(user_id: int, task_name: str) -> Optional[DailyTask]:

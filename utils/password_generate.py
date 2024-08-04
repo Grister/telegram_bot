@@ -3,7 +3,6 @@ import random
 
 def generate_password(length):
     chars = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
-    lowercase_chars = 'abcdefghijklnopqrstuvwxyz'
     uppercase_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     digit_chars = '1234567890'
 

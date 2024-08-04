@@ -1,16 +1,14 @@
-from aiogram import Router, F
-from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, CallbackQuery
-from aiogram.utils.formatting import Code
+from aiogram import F, Router
 from aiogram.enums import ParseMode
+from aiogram.filters import Command, CommandStart
+from aiogram.types import CallbackQuery, Message
+from aiogram.utils.formatting import Code
 
-import keyboards.main as kb
 import database.requests.user as user_rq
-
+import keyboards.main as kb
 from handlers.currency import cmd_get_rates
 from handlers.notes import cmd_get_tags
 from handlers.tasks import cmd_get_tasks
-
 from utils.password_generate import generate_password
 
 router = Router()
@@ -22,13 +20,17 @@ async def cmd_start(message: Message, user_id: int = None, username: str = None,
     username = username if username else message.from_user.username
 
     if from_callback:
-        await message.edit_text(f'How can I help you next?',
-                                reply_markup=kb.main)
+        await message.edit_text(
+            text='How can I help you next?',
+            reply_markup=kb.main
+        )
     else:
         await user_rq.set_user(user_id, username)
-        await message.answer(f'Hello, {message.from_user.first_name}! '
-                             f'How can I help you?',
-                             reply_markup=kb.main)
+        await message.answer(
+            text=f'Hello, {message.from_user.first_name}! '
+                 f'How can I help you?',
+            reply_markup=kb.main
+        )
 
 
 @router.message(Command('help'))
@@ -54,7 +56,7 @@ async def cmd_password(message: Message):
         arg = message.text.split()[1]
         if arg.isdigit():
             length = int(arg)
-    except Exception as e:
+    except Exception:
         pass
 
     password = generate_password(length)

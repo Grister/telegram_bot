@@ -1,8 +1,8 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from database.requests.task import get_task_list
 from database.models import StatusEnum
+from database.requests.task import get_task_list
 
 empty_tasks_menu = InlineKeyboardMarkup(
     inline_keyboard=[

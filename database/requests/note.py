@@ -1,9 +1,10 @@
-import utils.db_utils as db_tools
+from typing import List, Optional
 
-from typing import Optional, List
+from sqlalchemy import delete, update
+
+import utils.db_utils as db_tools
 from database.db import async_session
-from database.models import Tag, Note
-from sqlalchemy import select, delete, update
+from database.models import Note, Tag
 
 
 async def set_note(user_id: int, tag_name: str, note: str) -> None:
