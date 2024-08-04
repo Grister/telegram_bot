@@ -123,35 +123,35 @@ and manage tasks, track their status, manage notes and get currency exchange rat
 
 ```bash
     .
-    ├── main.py # Entry point for running the bot
+    ├── main.py                   # Entry point for running the bot
     ├── database
-    │ ├── models.py # Database model definitions
-    │ ├── db.py # Script for creating database connection
+    │ ├── models.py               # Database model definitions
+    │ ├── db.py                   # Script for creating database connection
     │ └── requests              
-    │ ├── note.py # Database requests for Note models
-    │ ├── task.py # Database requests for Task models
-    │ └── user.py # Database requests for User models
+    │ ├── note.py                 # Database requests for Note models
+    │ ├── task.py                 # Database requests for Task models
+    │ └── user.py                 # Database requests for User models
     ├── handlers
-    │ ├── __init__.py # Handlers initialization
-    │ ├── base.py # Handlers for main commands
-    │ ├── tasks.py # Handlers for task management
-    │ ├── currency.py # Handlers for getting currency rates
-    │ └── notes.py # Handlers for note management
+    │ ├── __init__.py             # Handlers initialization
+    │ ├── base.py                 # Handlers for main commands
+    │ ├── tasks.py                # Handlers for task management
+    │ ├── currency.py             # Handlers for getting currency rates
+    │ └── notes.py                # Handlers for note management
     ├── keyboards
-    │ ├── __init__.py # Keyboards initialization
-    │ ├── main.py # Keyboards for main handlers
-    │ ├── notes.py # Keyboards for note handlers
-    │ └── tasks.py # Keyboards for task handlers
+    │ ├── __init__.py             # Keyboards initialization
+    │ ├── main.py                 # Keyboards for main handlers
+    │ ├── notes.py                # Keyboards for note handlers
+    │ └── tasks.py                # Keyboards for task handlers
     ├── services
-    │ └── currency_service.py # Parser for getting rates
+    │ └── currency_service.py     # Parser for getting rates
     ├── utils
-    │ ├── db_utils.py # Database utility functions
-    │ ├── password_generate.py # Utility for password generation
-    │ └── text_formater.py # Text formater utility
-    ├── docker-compose.yml # File to run project in Docker 
-    ├── Dockerfile # Dockerfile for project 
-    ├── .env # Configuration file
-    └── README.md # Project documentation
+    │ ├── db_utils.py             # Database utility functions
+    │ ├── password_generate.py    # Utility for password generation
+    │ └── text_formater.py        # Text formater utility
+    ├── docker-compose.yml        # File to run project in Docker 
+    ├── Dockerfile                # Dockerfile for project 
+    ├── .env                      # Configuration file
+    └── README.md                 # Project documentation
 ```
 ### Contributing
 
