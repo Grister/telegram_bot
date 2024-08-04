@@ -26,18 +26,18 @@ and manage tasks, track their status, manage notes and get currency exchange rat
 #### Manual installation
 
 1. Clone the repository:
-   ```
+   ```shell
    git clone https://github.com/Grister/telegram_bot.git
    cd telegram_bot
    ```
 2. Create and activate a virtual environment:
-   ```
+   ```shell
    python -m venv venv
    source venv/bin/activate  # for Linux/Mac
    venv\Scripts\activate  # for Windows
    ```
 3. Install dependencies:
-   ```
+   ```shell
    pip install -r requirements.txt
    ```
 4. Set environment variables in the .env file:
@@ -51,14 +51,14 @@ and manage tasks, track their status, manage notes and get currency exchange rat
    BESTCHANCE_API_KEY=bestchance_api_key
    ```
 5. Run the bot:
-   ```
+   ```shell
    python main.py
    ```
 
 #### Installation with Doker
 
 1. Clone the repository:
-   ```
+   ```shell
    git clone https://github.com/Grister/telegram_bot.git
    cd telegram_bot
    ```
@@ -66,12 +66,12 @@ and manage tasks, track their status, manage notes and get currency exchange rat
 2. Install [Docker for Desktop](https://docs.docker.com/desktop/install/windows-install/)
 
 3. Run docker-compose in terminal
-   ```
+   ```shell
    docker-compose up
    ```
 
 4. At the end you can stop the containers with the command:
-   ```
+   ```shell
    docker-compose down
    ```
 
