@@ -23,8 +23,8 @@ task_after_creating_menu = InlineKeyboardMarkup(
 async def task_context(task_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text='✅ Complete task', callback_data=f'complete_task_{task_id}')],
-            [InlineKeyboardButton(text='🚫 Cancel task', callback_data=f'cancel_task_{task_id}')],
+            [InlineKeyboardButton(text='✅ Complete', callback_data=f'complete_task_{task_id}')],
+            [InlineKeyboardButton(text='🚫 Cancel', callback_data=f'cancel_task_{task_id}')],
             [InlineKeyboardButton(text='⬅️ Back', callback_data='callback_tasks')]
         ]
     )
@@ -35,7 +35,7 @@ async def task_list(user_id: int) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
     for task in all_tasks:
         if task.status == StatusEnum.IN_PROGRESS:
-            keyboard.add(InlineKeyboardButton(text=f'✔️ {task.title}', callback_data=f'task_{task.id}'))
+            keyboard.add(InlineKeyboardButton(text=f'⭕️ {task.title}', callback_data=f'task_{task.id}'))
     keyboard.add(InlineKeyboardButton(text='☑️ Create new task', callback_data='create_task'))
     keyboard.add(InlineKeyboardButton(text='⬅️ Back to main', callback_data='callback_start'))
     return keyboard.adjust(1).as_markup()

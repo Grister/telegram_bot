@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
-from aiogram.utils.formatting import Italic
+from aiogram.utils.formatting import Italic, Bold
 
 import database.requests as rq
 import keyboards.notes as notes_kb
@@ -48,10 +48,11 @@ async def notes_by_tag(callback: CallbackQuery):
     tag = await rq.note.get_tag_instance(int(callback.data.split('_')[1]))
     notes = await rq.note.get_notes_by_tag(tag.id)
     if notes:
-        notes_message = f"Notes with tag #{tag.name}:\n\n"
+        notes_message = f"Notes with tag #{Bold('#' + tag.name).as_markdown()}:\n\n"
         for note in notes:
-            notes_message += f"🕝 {Italic(note.created_at.strftime('%d/%m/%Y %H:%M')).as_markdown()}\n"
-            notes_message += f"\t - {note.content}\n\n"
+            notes_message += f" > {note.content}\n\n"
+            notes_message += f"🕝 {Italic(note.created_at.strftime('%d %b, %Y %H:%M')).as_markdown()}\n"
+            notes_message += "➖➖➖➖➖➖➖➖➖➖➖➖\n"
         await callback.answer(f"You selected the tag '{tag.name}'")
         await callback.message.answer(
             notes_message,
@@ -93,6 +94,7 @@ async def note_context(callback: CallbackQuery):
 async def note_delete(callback: CallbackQuery):
     await rq.note.delete_note(int(callback.data.split('_')[2]))
     await callback.answer("Note was deleted", show_alert=True)
+    await cmd_get_tags(callback.message, callback.from_user.id)
 
 
 # Update specific note
@@ -113,6 +115,7 @@ async def save(message: Message, state: FSMContext):
 
     await state.clear()
     await message.answer("Update was saved ✅")
+    await cmd_get_tags(message)
 
 
 # Delete specific tag
@@ -120,3 +123,4 @@ async def save(message: Message, state: FSMContext):
 async def tag_delete(callback: CallbackQuery):
     await rq.note.delete_tag(int(callback.data.split('_')[2]))
     await callback.answer("Tag was deleted", show_alert=True)
+    await cmd_get_tags(callback.message, callback.from_user.id)
