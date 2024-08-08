@@ -48,7 +48,7 @@ async def notes_by_tag(callback: CallbackQuery):
     tag = await rq.note.get_tag_instance(int(callback.data.split('_')[1]))
     notes = await rq.note.get_notes_by_tag(tag.id)
     if notes:
-        notes_message = f"Notes with tag #{Bold('#' + tag.name).as_markdown()}:\n\n"
+        notes_message = f"Notes with tag #{tag.name}:\n\n"
         for note in notes:
             notes_message += f" > {note.content}\n\n"
             notes_message += f"🕝 {Italic(note.created_at.strftime('%d %b, %Y %H:%M')).as_markdown()}\n"

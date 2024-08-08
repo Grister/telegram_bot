@@ -71,7 +71,7 @@ class DailyTask(Base):
     __tablename__ = 'daily_tasks'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str] = mapped_column(String(64), nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped['User'] = relationship(
         argument='User',
