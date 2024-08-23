@@ -47,6 +47,16 @@ async def cmd_task_archive(message: Message):
     await message.answer(msg)
 
 
+# Make new note
+@router.message(F.text.startswith('!'))
+async def create_task(message: Message):
+    user_id = message.from_user.id
+    task_title = message.text[1:]
+
+    await task_rq.set_daily_task(user_id, task_title)
+    await message.reply("Note was saved successfully ✅")
+
+
 @router.message(Command("create_task"))
 async def cmd_create_task(message: Message, state: FSMContext):
     await message.answer("Please enter the name of your task:")
